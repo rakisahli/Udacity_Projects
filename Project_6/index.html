@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Project 6: Make Effective Data Visualization</title>
+<style>
+    svg {
+        background-color: aliceblue;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+    }
+    .bar:hover {
+        fill: green;
+    }
+    .bar_chart text {
+        font: Times;
+        font-size: 12px;
+        font-weight: bold;
+
+    }
+    .axis {
+        font: 10px Times;
+    }
+    .axis path {
+        display: none;
+    }
+</style>
+
+<body>
+    <h1 style="text-align:center;">Titanic -  How Survival Rate was Higher Among Younger Passengers</h1>
+    <svg class="bar_chart"></svg>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+</body>
+<script>
+    var margin = {
+            top: 20,
+            right: 10,
+            bottom: 100,
+            left: 55
+        },
+        width = 700 - margin.right - margin.left,
+        height = 450 - margin.top - margin.bottom;
+
+    //  x and y scales 
+    var x = d3.scale.ordinal().rangeRoundBands([0, width], 0.1, 0.1); // Data type of Age group is ordinal
+    var y = d3.scale.linear().range([height, 0]); // Data type Percentage of Survival is quanitative 
+
+    var x_axis = d3.svg.axis().scale(x).orient("bottom");
+    var y_axis = d3.svg.axis().scale(y).orient("left");
+
+
+    var svg = d3.select(".bar_chart")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    //Importing data   
+    d3.csv("titanic_agg.csv", function(data) {
+        data.forEach(function(d) {
+            d.Age = d.Age;
+            d.Passengers_Survived = d.Passengers_Survived;
+
+        });
+        //Defining X and Y range  
+        x.domain(data.map(function(d) {
+            return d.Age;
+        }));
+        y.domain([0, d3.max(data, function(d) {
+            return d.Passengers_Survived;
+        })]);
+
+        // Bar graph attributes and values   
+        svg.selectAll("rect")
+            .data(data)
+            .enter()
+            .append('rect')
+            .attr("class", "bar")
+            .attr("height", 0)
+            .attr("y", height)
+            .attr("fill", "navy")
+            //Adding animation to the bars
+            .transition().duration(6000)
+            .delay(function(d, i) {
+                return i * 100;
+            })
+            .attr({
+                "x": function(d) {
+                    return x(d.Age);
+                },
+                "y": function(d) {
+                    return y(d.Passengers_Survived);
+                },
+                "width": x.rangeBand(),
+                "height": function(d) {
+                    return height - y(d.Passengers_Survived);
+                }
+            });
+
+        // Including the % of survivors each age group on respective bars
+        svg.selectAll('text')
+            .data(data)
+            .enter()
+            .append('text')
+            .text(function(d) {
+                return d.Passengers_Survived;
+            })
+            .attr({
+                "x": function(d) {
+                    return x(d.Age) + x.rangeBand() / 2;
+                },
+                "y": function(d) {
+                    return y(d.Passengers_Survived) + 14;
+                },
+                "font-family": 'Times',
+                "font-size": '12px',
+                "font-weight": 'bold',
+                "fill": 'lightcyan',
+                "text-anchor": 'middle'
+            });
+
+        // Draw x_axis and position the label
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(x_axis)
+            .selectAll("text")
+            .attr("dx", "-.8em")
+            .attr("dy", ".25em")
+            .attr("transform", "rotate(-45)")
+            .style("text-anchor", "end");
+
+        // Add the text label for the x axis
+        svg.append("text")
+            .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.bottom) + ")")
+            .style("text-anchor", "middle")
+            .attr("dy", "-3em")
+            .text("Age Group (in years)");
+
+        // Draw y axis and postion the label
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(y_axis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -height / 1.5)
+            .attr("dy", "-3em")
+            .text("Survived Passengers in %");
+    });
+</script>
+<p><strong>Udacity - </strong> Nanodegree Data Analyst(August 28, 2016): Rahel Ghebrekidan</p>
+
+</html>

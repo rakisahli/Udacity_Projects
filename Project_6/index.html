@@ -48,7 +48,7 @@
     var x_axis = d3.svg.axis().scale(x).orient("bottom");
     var y_axis = d3.svg.axis().scale(y).orient("left");
 
-
+    // defining svg container and creating g element to be used to group svg elements
     var svg = d3.select(".bar_chart")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -78,9 +78,11 @@
             .attr("class", "bar")
             .attr("height", 0)
             .attr("y", height)
-            .attr("fill", "navy")
+            .attr("fill", function(d, i) {
+                return 'rgb(10, 10, ' + ((i * 100) + 100) + ')'
+            })
             //Adding animation to the bars
-            .transition().duration(6000)
+            .transition().duration(3000)
             .delay(function(d, i) {
                 return i * 100;
             })
@@ -103,7 +105,7 @@
             .enter()
             .append('text')
             .text(function(d) {
-                return d.Passengers_Survived;
+                return d.Passengers_Survived + '%';
             })
             .attr({
                 "x": function(d) {
@@ -145,7 +147,7 @@
             .attr("transform", "rotate(-90)")
             .attr("x", -height / 1.5)
             .attr("dy", "-3em")
-            .text("Survived Passengers in %");
+            .text("Survived Passengers");
     });
 </script>
 <p><strong>Udacity - </strong> Nanodegree Data Analyst(August 28, 2016): Rahel Ghebrekidan</p>
